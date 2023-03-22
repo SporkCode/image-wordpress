@@ -1,5 +1,7 @@
 FROM php:8.1-cli-alpine AS php-build
 
+LABEL org.opencontainers.image.source="https://github.com/SporkCode/image-wordpress"
+
 # Build PHP extensions
 RUN apk add curl gcc libc-dev make php81-dev imagemagick-dev
 RUN pecl install imagick 
