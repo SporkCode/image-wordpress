@@ -31,7 +31,9 @@ jobs:
           push: true
           tags: |
             ghcr.io/sporkcode/wordpress-php:latest
-            ghcr.io/sporkcode/wordpress-php:6.1.1      
+            ghcr.io/sporkcode/wordpress-php:6.1.1
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - name: Build and push (nginx)
         uses: docker/build-push-action@v4
         with:
@@ -42,3 +44,5 @@ jobs:
           tags: |
             ghcr.io/sporkcode/wordpress-nginx:latest
             ghcr.io/sporkcode/wordpress-nginx:6.1.1
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
