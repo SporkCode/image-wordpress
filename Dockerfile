@@ -11,6 +11,7 @@ FROM php:8.1-fpm-alpine as php
 
 ARG WORDPRESS_VERSION=6.1.1
 
+RUN addgroup php && addgroup -S www-data php
 RUN apk add libzip-dev icu-dev libgomp imagemagick-libs
 # Install PHP extensions
 RUN docker-php-ext-install -j$(nproc) exif intl mysqli zip
@@ -25,6 +26,7 @@ COPY php-fpm.conf /usr/local/etc/php-fpm.d/zzz-www.conf
 
 FROM nginx:1.23 AS nginx
 
+RUN addgroup php && adduser nginx php
 COPY --from=php /var/www/html /var/www/html
 COPY fastcgi_params /etc/nginx/fastcgi_params
 COPY nginx.conf /etc/nginx/conf.d/default.conf
