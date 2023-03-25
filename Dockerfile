@@ -12,7 +12,7 @@ FROM php:8.1-fpm-alpine as php
 ARG WORDPRESS_VERSION=6.1.1
 
 RUN addgroup php && addgroup -S www-data php
-RUN apk add libzip-dev icu-dev libgomp imagemagick-libs
+RUN apk add socat libzip-dev icu-dev libgomp imagemagick-libs
 # Install PHP extensions
 RUN docker-php-ext-install -j$(nproc) exif intl mysqli zip
 COPY --from=php-build /usr/local/lib/php/extensions/no-debug-non-zts-20210902/* /usr/local/lib/php/extensions/no-debug-non-zts-20210902/
