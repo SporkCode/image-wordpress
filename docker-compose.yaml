@@ -1,0 +1,41 @@
+services:
+  php:
+    build:
+      target: php
+    environment:
+      - DB_HOST=db
+      - DB_NAME=wordpress
+      - DB_USER=wordpress
+      - DB_PASSWORD=CHANGE_ME
+      - DB_PREFIX=wp_
+      - AUTH_KEY=CHANGE_ME
+      - SECURE_AUTH_KEY=CHANGE_ME
+      - LOGGED_IN_KEY=CHANGE_ME
+      - NONCE_KEY=CHANGE_ME
+      - AUTH_SALT=CHANGE_ME
+      - SECURE_AUTH_SALT=CHANGE_ME
+      - LOGGED_IN_SALT=CHANGE_ME
+      - NONCE_SALT=CHANGE_ME
+      - DEBUG=0
+    depends_on:
+      - db
+  nginx:
+    build:
+      target: nginx
+    ports:
+      - "8080:80"
+    depends_on:
+      - php
+  db:
+    image: mariadb:11.7
+    environment:
+      MARIADB_RANDOM_ROOT_PASSWORD: true
+      MARIADB_DATABASE: wordpress
+      MARIADB_USER: wordpress
+      MARIADB_PASSWORD: CHANGE_ME
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
+    driver: local

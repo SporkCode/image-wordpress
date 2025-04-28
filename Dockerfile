@@ -1,33 +1,39 @@
-FROM php:8.1-cli-alpine AS php-build
-
-LABEL org.opencontainers.image.source="https://github.com/SporkCode/image-wordpress"
-
-# Build PHP extensions
-RUN apk add curl gcc libc-dev make php81-dev imagemagick-dev
-RUN pecl install imagick 
+ARG PHP_VERSION=8.4
+ARG NGINX_VERSION=1.28
 
 
-FROM php:8.1-fpm-alpine as php
+FROM alpine:3.21 AS wordpress
 
-ARG WORDPRESS_VERSION=6.1.1
+ARG WORDPRESS_VERSION=6.8
 
-RUN addgroup php && addgroup -S www-data php
-RUN apk add fcgi libzip-dev icu-dev libgomp imagemagick-libs
-# Install PHP extensions
-RUN docker-php-ext-install -j$(nproc) exif intl mysqli zip
-COPY --from=php-build /usr/local/lib/php/extensions/no-debug-non-zts-20210902/* /usr/local/lib/php/extensions/no-debug-non-zts-20210902/
-RUN docker-php-ext-enable imagick
-# Wordpress
-RUN curl https://wordpress.org/wordpress-${WORDPRESS_VERSION}.tar.gz | tar -xz -C /var/www/html --strip-components=1
-COPY wp-config.php /var/www/html/wp-config.php
-# Configure PHP FPM
-COPY php-fpm.conf /usr/local/etc/php-fpm.d/zzz-www.conf
+WORKDIR /src
+
+RUN apk add --no-cache curl rsync
+
+RUN curl https://wordpress.org/wordpress-${WORDPRESS_VERSION}.tar.gz | tar -xz
+
+RUN rsync wordpress/ static --recursive --exclude='*.php'
 
 
-FROM nginx:1.23 AS nginx
+FROM php:${PHP_VERSION}-fpm-alpine AS php
 
-RUN addgroup php && adduser nginx php
-COPY --from=php /var/www/html /var/www/html
-COPY fastcgi_params /etc/nginx/
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY healthcheck.html /var/www/html/
+LABEL org.opencontainers.image.source=https://github.com/SporkCode/image-wordpress
+LABEL org.opencontainers.image.description="wordpress-php"
+LABEL org.opencontainers.image.licenses=MIT
+
+RUN docker-php-ext-install mysqli
+
+COPY --from=wordpress /src/wordpress /var/www/html
+
+COPY ./php/wp-config.php /var/www/html/wp-config.php
+
+
+FROM nginx:${NGINX_VERSION}-alpine AS nginx
+
+LABEL org.opencontainers.image.source=https://github.com/SporkCode/image-wordpress
+LABEL org.opencontainers.image.description="wordpress-nginx"
+LABEL org.opencontainers.image.licenses=MIT
+
+COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
+
+COPY --from=wordpress /src/static /var/www/html

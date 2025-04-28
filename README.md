@@ -1,1 +1,2 @@
-# image-wordpress
+# WordPress & Nginx Container Image
+
