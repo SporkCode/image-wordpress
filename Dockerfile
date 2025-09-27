@@ -2,7 +2,7 @@ ARG PHP_VERSION=8.4
 ARG NGINX_VERSION=1.28
 
 
-FROM alpine:3.21 AS wordpress
+FROM alpine:3.22 AS wordpress
 
 ARG WORDPRESS_VERSION=6.8
 
