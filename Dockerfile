@@ -39,4 +39,4 @@ LABEL org.opencontainers.image.licenses=MIT
 
 COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
 
-COPY --from=wordpress /src/static /var/www/html
+COPY --from=src /src/static /var/www/html
